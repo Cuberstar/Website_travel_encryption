@@ -1,0 +1,276 @@
+using System;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using Encryption_with_a_key;
+
+internal class Program
+{
+    // AES setup
+    private static Aes CreateAES() //method
+    {
+        Aes aes = Aes.Create();
+        aes.KeySize = 128; // AES-128
+        aes.BlockSize = 128;
+        
+        aes.Mode = CipherMode.CBC; // Cipher Block Chaining mode
+        aes.Padding = PaddingMode.PKCS7; // Padding to fit block size
+        return aes;
+    }
+
+    // Encryption method using AES
+    private static string EncryptString(string plainText, byte[] key /*as 128 bits*/, byte[] iv) //constructor
+    {
+        using (Aes aes = CreateAES())
+        {
+            aes.Key = key;
+            aes.IV = iv;
+
+            ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+
+            using (MemoryStream memory_st = new MemoryStream())
+            {
+                using (CryptoStream crypto_st = new CryptoStream(memory_st, encryptor, CryptoStreamMode.Write))
+                {
+                    using (StreamWriter stream_wr = new StreamWriter(crypto_st))
+                    {
+                        // Write the plain text to the stream
+                        stream_wr.Write(plainText);
+                    }
+
+                    // Return encrypted data as a base64 string
+                    return Convert.ToBase64String(memory_st.ToArray());
+                }
+            }
+        }
+    }
+    
+    // Decryption method using AES
+    private static string DecryptString(string cipherText, byte[] key, byte[] iv)
+    {
+        using (Aes aes = CreateAES())
+        {
+            aes.Key = key;
+            aes.IV = iv;
+
+            ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+            using (MemoryStream memory_st = new MemoryStream(Convert.FromBase64String(cipherText)))
+            {
+                using (CryptoStream crypto_st = new CryptoStream(memory_st, decryptor, CryptoStreamMode.Read))
+                {
+                    using (StreamReader stream_wr = new StreamReader(crypto_st))
+                    {
+                        // Read the decrypted bytes from the decrypting stream
+                        return stream_wr.ReadToEnd();
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("Input your login please: ");
+        string login = Console.ReadLine();
+
+        Console.WriteLine("Input your password: ");
+        string password = Console.ReadLine();
+
+        // Create a new customer and perform login/password check
+        Customer customer = new Customer(login, password);
+        customer.Login_password_check();
+
+        
+        
+        
+        
+        // Step 1: Generate a random key and Initialization Vector
+        Aes aes = CreateAES();
+        aes.GenerateKey(); // This is the encryption key
+        aes.GenerateIV();  // This is the initialization vector
+
+        byte[] key = aes.Key; // 'cipher key' 
+        byte[] iv = aes.IV;   // Initial vector used in CBC mode
+
+        // Step 2: Encrypt the login and password
+        string cipheredLogin = EncryptString(login, key, iv);
+        string cipheredPassword = EncryptString(password, key, iv);
+
+        // Display the ciphered output
+        Console.WriteLine("Ciphered login: " + cipheredLogin);
+        Console.WriteLine("Ciphered password: " + cipheredPassword);
+        
+        // Step 3: Decrypt the login and password to verify
+        string decryptedLogin = DecryptString(cipheredLogin, key, iv);
+        string decryptedPassword = DecryptString(cipheredPassword, key, iv);
+
+        // Display the decrypted output
+        Console.WriteLine("Decrypted login: " + decryptedLogin);
+        Console.WriteLine("Decrypted password: " + decryptedPassword);
+        
+        // write a redirection to the master profile with specific ID 
+    }
+}
+
+
+
+
+
+
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Timers;//
+
+namespace Encryption_with_a_key; 
+//check gen code
+
+public class Customer /*: Program*/
+{
+    private string login; // static added //issues with static // static is not appropriate for classes
+    private string password;
+    public int data_reg_number = 1;
+    /*private string a = login;*/ //not correct
+    private int internal_count = 1;
+    public string data_type; // a lot of code was here
+    public System.Timers.Timer password_timer; //
+
+    private string[] wrong_char = { "/",">","<","{","}","[","]"};
+
+    public void SetTimerForPassword()// timer
+    {
+        password_timer = new System.Timers.Timer(500); //  mls
+        password_timer.Elapsed += Tick;
+        password_timer.AutoReset = true;
+        password_timer.Enabled = true;   // stop => false
+        // retranslate with help of one more function (method) in order to remove limits of the timer
+    }
+
+    public void Tick (Object source, ElapsedEventArgs e)// timer
+    {
+        
+    }
+    
+    public Customer(string login, string password) // "customer" class has "customer" constructor 
+    {
+        this.login = login; //customer.login?
+        this.password = password;
+    }
+
+    public void Check_l_p_method(string data_input) 
+    {
+        bool check_for_true = false;
+
+        // timer initialisation inside of the method 
+        
+        while (!check_for_true) // comparison, not an assignment (what is an assignment?) (!)
+        {
+            switch (data_input.Length) // ADD live time checking !!! //login.lenght initially
+            {
+                case >= 10: // there are 362880 combinations for 9 digits
+                    Console.WriteLine($"There are to many digits, {data_type} must be 9 digits long");
+                    return; // instead of break, it can be the solution
+                // when button clicked, do not record info 
+
+                case <= 8:
+                    Console.WriteLine($"There are too small amount of digits, {data_type} must be 9 digits");
+                    //you can delete data right from this place... 
+                    return;
+
+                /*case 21:
+                    Console.WriteLine(" ");
+                    break;*/
+
+                case 9:
+                    //allow go front
+                    
+                    for (int count = 0; count < 9; count++) // "merge variables" used to solve an error
+                    {
+                        for (int count_2 = 0; count_2 < 9; count_2++) //
+                        {
+                            if (Array.Exists(wrong_char, element => element == data_input[count].ToString()))//(a[count] == wrong_char.ToString()[count_2])
+                            {
+                                Console.WriteLine($"There is a wrong character(s) [{data_input[count]}] in {data_type}");
+                                /*goto case 21;*/
+                                return;
+                                //also check if the same login exist
+                            }
+                            //true for check for true with case!!!
+                        }   
+                    }
+                    /*internal_count++;*/
+                    // timer => stop inside of the method
+                    
+                    check_for_true = true;
+                    return;
+                    //break;
+                
+                ///////////////////////login and password don't being ansked to be entered again!!!!!!!!!!
+            }
+            
+            
+        }
+        //send login on email
+        /*case 20:*/
+            /*refer to text written in a user's box, as it will be in live time, just delete everything
+            that exced 20 digits + underline in red*/
+    }
+    
+    private bool IsInputValid(string input)
+    {
+        return input.Length == 9 && !wrong_char.Any(input.Contains);
+    }
+
+    public void Login_password_check() /*method (void added to solve error)<- try to use this for customer
+        data input instead of lines in the main method */
+    {
+        bool correct_account_data = false;
+        
+        while (!correct_account_data)
+        {
+            switch (data_reg_number) //added 
+            {
+               case 1: //login // case 2 -> password
+                   data_type = "login";
+                   
+                   if (!IsInputValid(login))
+                   {
+                       Console.WriteLine($"Invalid {data_type}. Please enter a {data_type} with exactly 9 characters and no disallowed symbols.");
+                       Console.Write("Enter login: ");
+                       login = Console.ReadLine();
+                   }
+                   else
+                   {
+                       data_reg_number++;
+                   }
+                   break;
+                   /*Check_l_p_method(login); // solution to the issue <- learn
+                   data_reg_number++;
+                   break;*/
+               case 2:
+                   data_type = "password";
+                   if (!IsInputValid(password))
+                   {
+                       Console.WriteLine($"Invalid {data_type}. Please enter a {data_type} with exactly 9 characters and no disallowed symbols.");
+                       Console.Write("Enter password: ");
+                       password = Console.ReadLine();
+                   }
+                   else
+                   {
+                       correct_account_data = true;
+                       Console.WriteLine("Your login and password are correctly formatted.");
+                   }
+                   break;
+                   /*Check_l_p_method(password);
+                   correct_account_data = true;
+                   break;*/
+            }
+            // switch login.length was there
+        }
+    }
+}
