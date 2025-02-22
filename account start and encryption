@@ -254,6 +254,7 @@ public class Customer /*: Program*/
                    break;*/
                case 2:
                    data_type = "password";
+                    // add live time checking 
                    if (!IsInputValid(password))
                    {
                        Console.WriteLine($"Invalid {data_type}. Please enter a {data_type} with exactly 9 characters and no disallowed symbols.");
