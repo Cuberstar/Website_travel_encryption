@@ -1,7 +1,16 @@
+
+namespace Encryption_with_a_key; //check gen code
+
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Timers;//
+
 using Encryption_with_a_key;
 
 internal class Program
@@ -69,8 +78,6 @@ internal class Program
         }
     }
     
-    
-    
 
     public static void Main(string[] args)
     {
@@ -83,6 +90,10 @@ internal class Program
         // Create a new customer and perform login/password check
         Customer customer = new Customer(login, password);
         customer.Login_password_check();
+
+        // take the checked data from Customer
+        login = customer.Login;
+        password = customer.Password;
 
         
         
@@ -111,24 +122,21 @@ internal class Program
         // Display the decrypted output
         Console.WriteLine("Decrypted login: " + decryptedLogin);
         Console.WriteLine("Decrypted password: " + decryptedPassword);
+
+        // Proof that encryption and decryption worked
+        if (decryptedLogin == login && decryptedPassword == password)
+        {
+            Console.WriteLine("Encryption test successful.");
+        }
+        else
+        {
+            Console.WriteLine("Encryption test failed.");
+        }
         
         // write a redirection to the master profile with specific ID 
     }
 }
 
-
-
-
-
-
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Timers;//
-
-namespace Encryption_with_a_key; 
-//check gen code
 
 public class Customer /*: Program*/
 {
@@ -142,6 +150,10 @@ public class Customer /*: Program*/
 
     private string[] wrong_char = { "/",">","<","{","}","[","]"};
 
+    // checked login and password can be taken by Program
+    public string Login => login;
+    public string Password => password;
+
     public void SetTimerForPassword()// timer
     {
         password_timer = new System.Timers.Timer(500); //  mls
@@ -151,7 +163,7 @@ public class Customer /*: Program*/
         // retranslate with help of one more function (method) in order to remove limits of the timer
     }
 
-    public void Tick (Object source, ElapsedEventArgs e)// timer
+    public void Tick (Object source, ElapsedEventArgs e)//
     {
         
     }
@@ -243,22 +255,38 @@ public class Customer /*: Program*/
                        Console.WriteLine($"Invalid {data_type}. Please enter a {data_type} with exactly 9 characters and no disallowed symbols.");
                        Console.Write("Enter login: ");
                        login = Console.ReadLine();
+
+                       // check the new login before moving to password
+                       if (IsInputValid(login))
+                       {
+                           data_reg_number++;
+                       }
                    }
                    else
                    {
                        data_reg_number++;
                    }
                    break;
+                   
                    /*Check_l_p_method(login); // solution to the issue <- learn
                    data_reg_number++;
                    break;*/
+                   
                case 2:
                    data_type = "password";
+                   
                    if (!IsInputValid(password))
                    {
                        Console.WriteLine($"Invalid {data_type}. Please enter a {data_type} with exactly 9 characters and no disallowed symbols.");
                        Console.Write("Enter password: ");
                        password = Console.ReadLine();
+
+                       // check the new password before finishing
+                       if (IsInputValid(password))
+                       {
+                           correct_account_data = true;
+                           Console.WriteLine("Your login and password are correctly formatted.");
+                       }
                    }
                    else
                    {
@@ -266,6 +294,7 @@ public class Customer /*: Program*/
                        Console.WriteLine("Your login and password are correctly formatted.");
                    }
                    break;
+                   
                    /*Check_l_p_method(password);
                    correct_account_data = true;
                    break;*/
@@ -274,3 +303,4 @@ public class Customer /*: Program*/
         }
     }
 }
+
