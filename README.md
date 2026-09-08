@@ -1,6 +1,6 @@
 # AES Encryption & Login Validation
 
-A piece of an original website, C#/.NET project demonstrating basic login validation, AES encryption/decryption, and object-oriented programming.
+A piece that I developed to implement into the original website, C#/.NET project demonstrating basic login validation, AES encryption/decryption, and object-oriented programming.
 
 # Features
 
